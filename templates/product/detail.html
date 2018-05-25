@@ -1,0 +1,165 @@
+{% extends 'product/base.html' %}
+
+{% block head %}
+	<script type="text/javascript">
+
+		function add() {
+			num = parseFloat($('.num_show').val());
+			$('.num_show').val(num+1);
+			$('.num_show').blur();
+		}
+
+		function reduce() {
+			num = parseFloat($('.num_show').val());
+			if(num <= 1){
+				return;
+			}
+			$('.num_show').val(num-1);
+			$('.num_show').blur();
+		}
+
+		$(function (){
+			$('.num_show').blur(function () {
+				num = parseInt($('.num_show').val());
+				if(num <= 1){
+					num = 1;
+				}
+				price = parseFloat($('#price').text());
+				total_price = num*price;
+				$('.num_show').val(num);
+				$('#total_price').text(total_price.toFixed(2)+'元');
+			});
+
+		});
+
+	</script>
+{% endblock head %}
+
+{% block main %}
+
+	<div class="navbar_con">
+		<div class="navbar clearfix">
+			<div class="subnav_con fl">
+				<h1>全部商品分类</h1>	
+				<span></span>			
+				<ul class="subnav">
+					<li><a href="/list1_1_1/" class="fruit">新鲜水果</a></li>
+					<li><a href="/list2_1_1/" class="seafood">海鲜水产</a></li>
+					<li><a href="/list3_1_1/" class="meet">猪牛羊肉</a></li>
+					<li><a href="/list4_1_1/" class="egg">禽类蛋品</a></li>
+					<li><a href="/list5_1_1/" class="vegetables">新鲜蔬菜</a></li>
+					<li><a href="/list6_1_1/" class="ice">速冻食品</a></li>
+				</ul>
+			</div>
+			<ul class="navlist fl">
+				<li><a href="/">首页</a></li>
+				<li class="interval">|</li>
+				<li><a href="#">手机生鲜</a></li>
+				<li class="interval">|</li>
+				<li><a href="#">抽奖</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="breadcrumb">
+		<a href="#">全部分类</a>
+		<span>></span>
+		<a href="#">新鲜水果</a>
+		<span>></span>
+		<a href="#">商品详情</a>
+	</div>
+
+	<div class="goods_detail_con clearfix">
+		<div class="goods_detail_pic fl"><img src="/static/{{ product.product_img }}"></div>
+
+		<div class="goods_detail_list fr">
+			<h3>{{ product.product_name }}</h3>
+			<p>{{ product.product_abstract }}</p>
+			<div class="prize_bar">
+				<span class="show_pirze">¥<em id="price">{{ product.product_price }}</em></span>
+				<span class="show_unit">单  位：{{ product.product_unit }}</span>
+			</div>
+			<div class="goods_num clearfix">
+				<div class="num_name fl">数 量：</div>
+				<div class="num_add fl">
+					<input type="text" class="num_show fl" value="1">
+					<a href="javascript:add();" class="add fr">+</a>
+					<a href="javascript:reduce();" class="minus fr">-</a>
+				</div> 
+			</div>
+			<div class="total">总价：<em id="total_price">{{ product.product_price }}元</em></div>
+			<div class="operate_btn">
+				<a href="javascript:;" class="buy_btn">立即购买</a>
+				<a href="javascript:;" class="add_cart" id="add_cart">加入购物车</a>				
+			</div>
+		</div>
+	</div>
+
+	<div class="main_wrap clearfix">
+		<div class="l_wrap fl clearfix">
+			<div class="new_goods">
+				<h3>新品推荐</h3>
+				<ul>
+					{% for each in latest_products %}
+					<li>
+						<a href="/{{ each.id }}/"><img src="/static/{{ each.product_img }}"></a>
+						<h4><a href="/{{ each.id }}/">{{ each.product_name }}</a></h4>
+						<div class="prize">￥{{ each.product_price }}</div>
+					</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="r_wrap fr clearfix">
+			<ul class="detail_tab clearfix">
+				<li class="active">商品介绍</li>
+				<li>评论</li>
+			</ul>
+
+			<div class="tab_content">
+				<dl>
+					<dt>商品详情：</dt>
+					<dd>{{ product.product_content|safe }}</dd>
+				</dl>
+			</div>
+
+		</div>
+	</div>
+
+{% endblock main %}
+
+{% block script %}
+	<script type="text/javascript">
+			var $add_x = $('#add_cart').offset().top;
+			var $add_y = $('#add_cart').offset().left;
+
+			var $to_x = $('#show_count').offset().top;
+			var $to_y = $('#show_count').offset().left;
+
+			$(".add_jump").css({'left':$add_y+80,'top':$add_x+10,'display':'block'})
+			$('#add_cart').click(function(){
+				//判断是否登录，若未登录则先提示登录
+				if($('.login_btn').text().indexOf('登录') >= 0){
+					alert('请先登录后再进行购买！');
+					location.href = '/user/login';
+					return;
+				}
+
+				//动画
+				$(".add_jump").stop().animate({
+					'left': $to_y+7,
+					'top': $to_x+7},
+					"fast", function() {
+						$(".add_jump").fadeOut('fast',function () {});
+
+				});
+
+				//ajax
+				num = parseInt($('.num_show').val());
+				$.get('/cart/add{{ product.id }}_' + num + '/', function (data){
+					$('#show_count').text(data.count);
+				});
+			})
+	</script>
+{% endblock script %}

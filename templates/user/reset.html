@@ -1,0 +1,101 @@
+{% extends 'foot.html' %}
+
+{% block script %}
+<script>
+	$(function(){
+
+	var error_pwd;
+	var error_check_password;
+
+	$('#pwd').blur(function() {
+		check_pwd();
+	});
+
+	$('#cpwd').blur(function() {
+		check_cpwd();
+	});
+
+	function check_pwd(){
+		var len = $('#pwd').val().length;
+		if(len<8||len>20)
+		{
+			$('#pwd').next().html('密码最少8位，最长20位')
+			$('#pwd').next().show();
+			error_pwd = true;
+		}
+		else
+		{
+			$('#pwd').next().hide();
+			error_pwd = false;
+		}
+	}
+
+	function check_cpwd(){
+		var pass = $('#pwd').val();
+		var cpass = $('#cpwd').val();
+
+		if(pass!=cpass)
+		{
+			$('#cpwd').next().html('两次输入的密码不一致')
+			$('#cpwd').next().show();
+			error_check_password = true;
+		}
+		else
+		{
+			$('#cpwd').next().hide();
+			error_check_password = false;
+		}
+
+	}
+
+	$('form').submit(function() {
+		check_pwd();
+		check_cpwd();
+
+		if (error_pwd || error_check_password)
+		{
+			return false;
+		}
+
+	});
+
+	})
+</script>
+{% endblock script %}
+
+{% block main %}
+	<div class="login_top clearfix">
+		<a href="index.html" class="login_logo"><img src="/static/images/logo02.png"></a>
+	</div>
+
+	<div class="login_form_bg">
+		<div class="login_form_wrap clearfix">
+			<div class="login_banner fl"></div>
+			<div class="slogan fl">日夜兼程 · 急速送达</div>
+			<div class="login_form fr">
+				<div class="login_title clearfix">
+					<h1>重置密码</h1>
+					<a href="/user/login/">立即登录</a>
+				</div>
+				<div class="form_input">
+					<form action="/user/reset/" method="post">
+						{% csrf_token %}
+						<ul>
+							<li>
+								<input type="password" name="pwd" id="pwd" placeholder="请输入密码">
+								<div class="pwd_error">输入错误</div>
+							</li>
+							<li>
+								<input type="password" name="cpwd" id="cpwd" placeholder="请输入密码">
+								<div class="cpwd_error">输入错误</div>
+							</li>
+							<li>
+								<input type="submit" value="重置密码" class="input_submit">
+							</li>
+						</ul>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock main %}

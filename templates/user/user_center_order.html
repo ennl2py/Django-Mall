@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block body %}
+	<div class="search_bar clearfix">
+		<a href="/" class="logo fl"><img src="/static/images/logo.png"></a>
+		<div class="sub_page_name fl">|&nbsp;&nbsp;&nbsp;&nbsp;用户中心</div>
+		<div class="search_con fr">
+			<input type="text" class="input_text fl" name="" placeholder="搜索商品">
+			<input type="button" class="input_btn fr" name="" value="搜索">
+		</div>		
+	</div>
+
+	<div class="main_con clearfix">
+		<div class="left_menu_con clearfix">
+			<h3>用户中心</h3>
+			<ul>
+				<li><a href="/user/info/">· 个人信息</a></li>
+				<li><a href="/user/order/" class="active">· 全部订单</a></li>
+				<li><a href="/user/site/">· 收货地址</a></li>
+			</ul>
+		</div>
+		<div class="right_content clearfix">
+				<h3 class="common_title2">全部订单</h3>
+				{% for each in orders %}
+				<ul class="order_list_th w978 clearfix">
+					<li class="col01">{{ each.order_date }}</li>
+					<li class="col02">订单号：{{ each.order_id }}</li>
+					{% if each.is_Pay %}
+					<li class="col02 stress">已支付</li>
+					{% else %}
+					<li class="col02 stress">未支付</li>
+					{% endif %}
+				</ul>
+
+				<table class="order_list_table w980">
+					<tbody>
+						<tr>
+							<td width="55%">
+								{% for each1 in each.orderdetailinfo_set.all %}
+								<ul class="order_goods_list clearfix">					
+									<li class="col01"><img src="/static/{{ each1.products.product_img }}"></li>
+									<li class="col02">{{ each1.products.product_name }}<em>{{ each1.price }}/{{ each1.products.product_unit }}</em></li>
+									<li class="col03">{{ each1.count }}</li>
+									<li class="col04">{{ each1.price }}</li>
+								</ul>
+								{% endfor %}
+							</td>
+							<td width="15%">{{ each.total_price }}</td>
+							{% if each.is_Pay %}
+							<td width="15%">已付款</td>
+							<td width="15%"><a href="#" class="oper_btn">查看物流</a></td>
+							{% else %}
+							<td width="15%">待付款</td>
+							<td width="15%"><a href="/order/pay/{{ each.order_id }}" class="oper_btn">去付款</a></td>
+							{% endif %}
+						</tr>
+					</tbody>
+				</table>
+				{% endfor %}
+
+				<div class="pagenation">
+					{% if page.has_previous %}
+					<a href="/user/order/{{ page.previous_page_number }}"><上一页</a>
+					{% endif %}
+
+					{% for each in paginator.page_range %}
+					{% if each == page.number %}
+					<a href="#" class="active">{{ each }}</a>
+					{% else %}
+					<a href="/user/order/{{ each }}">{{ each }}</a>
+					{% endif %}
+					{% endfor %}
+
+					{% if page.has_next %}
+					<a href="/user/order/{{ page.next_page_number }}">下一页></a>
+					{% endif %}
+				</div>
+		</div>
+	</div>
+{% endblock body %}
